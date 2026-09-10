@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Страница пользователя</title>
+    <style>
+        body { font-family: sans-serif; margin: 30px; }
+        table { border-collapse: collapse; width: 60%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        button { padding: 6px 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>Информация о пользователе</h2>
+
+    <!-- Кнопка Logout -->
+    <form th:action="@{/logout}" method="POST">
+        <button type="submit">Выйти из аккаунта</button>
+    </form>
+</div>
+
+<hr/>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Email (Логин)</th>
+        <th>Роли</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td th:text="${user.id}">1</td>
+        <td th:text="${user.name}">Имя</td>
+        <td th:text="${user.lastName}">Фамилия</td>
+        <td th:text="${user.email}">email@example.com</td>
+        <td>
+            <span th:each="role : ${user.roles}"
+                  th:text="${role.name.replace('ROLE_', '')} + ' '">USER</span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<br/>
+<div sec:authorize="hasRole('ADMIN')">
+    <a th:href="@{/admin}">Перейти в панель администратора (/admin)</a>
+</div>
+
+</body>
+</html>
