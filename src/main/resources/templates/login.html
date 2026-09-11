@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Please sign in</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .form-signin {
+            width: 100%;
+            max-width: 330px;
+            padding: 15px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body class="text-center d-flex align-items-center vh-100">
+
+<main class="form-signin">
+    <form th:action="@{/login}" method="post">
+        <h1 class="h3 mb-3 font-weight-bold">Please sign in</h1>
+
+        <div th:if="${param.error}" class="alert alert-danger" role="alert">
+            Invalid username or password.
+        </div>
+
+        <label for="username" class="sr-only">Email address</label>
+        <input type="email" id="username" name="username" class="form-control mb-2" placeholder="Email address" required autofocus>
+
+        <label for="password" class="sr-only">Password</label>
+        <input type="password" id="password" name="password" class="form-control mb-3" placeholder="Password" required>
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    </form>
+</main>
+
+</body>
+</html>
