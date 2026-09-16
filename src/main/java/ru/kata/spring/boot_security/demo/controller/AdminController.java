@@ -8,6 +8,8 @@ import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+import java.security.Principal;
+
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
@@ -22,21 +24,22 @@ public class AdminController {
     }
 
     @GetMapping
-    public String userList(@RequestParam(value = "id", required = false) Long id, Model model) {
+    public String adminPage(Model model, Principal principal) {
+        User currentUser = userService.findByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser); // <-- Важно для навбара
         model.addAttribute("users", userService.getAllUsers());
         model.addAttribute("allRoles", roleService.getAllRoles());
-
-        if (id != null) {
-            model.addAttribute("user", userService.getUserById(id));
-        } else {
-            model.addAttribute("user", new User());
-        }
+        model.addAttribute("newUser", new User());
         return "admin";
     }
 
     @PostMapping("/save")
     public String saveUser(@ModelAttribute("user") User user) {
-        userService.saveUser(user);
+        if (user.getId() == null) {
+            userService.saveUser(user);
+        } else {
+            userService.updateUser(user);
+        }
         return "redirect:/admin";
     }
 

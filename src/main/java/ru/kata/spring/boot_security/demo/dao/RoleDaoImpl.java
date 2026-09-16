@@ -5,7 +5,9 @@ import ru.kata.spring.boot_security.demo.model.Role;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public class RoleDaoImpl implements RoleDao {
@@ -15,16 +17,31 @@ public class RoleDaoImpl implements RoleDao {
 
     @Override
     public List<Role> getAllRoles() {
-        return entityManager.createQuery("FROM Role", Role.class).getResultList();
+        return entityManager.createQuery("SELECT r FROM Role r", Role.class).getResultList();
     }
 
     @Override
     public Role findByName(String name) {
         return entityManager.createQuery("SELECT r FROM Role r WHERE r.name = :name", Role.class)
                 .setParameter("name", name)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
+                .getResultList()
+                .stream().findFirst().orElse(null);
+    }
+
+    @Override
+    public Role getRoleById(Long id) {
+        return entityManager.find(Role.class, id);
+    }
+
+    @Override
+    public Set<Role> getRolesByIds(Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Set.of();
+        }
+        List<Role> roles = entityManager.createQuery("SELECT r FROM Role r WHERE r.id IN :ids", Role.class)
+                .setParameter("ids", ids)
+                .getResultList();
+        return new HashSet<>(roles);
     }
 
     @Override
