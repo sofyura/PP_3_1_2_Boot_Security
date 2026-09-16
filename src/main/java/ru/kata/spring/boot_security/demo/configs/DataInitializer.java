@@ -1,17 +1,17 @@
 package ru.kata.spring.boot_security.demo.configs;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+import javax.annotation.PostConstruct;
 import java.util.Set;
 
 @Component
-public class DataInitializer implements CommandLineRunner {
+public class DataInitializer {
 
     private final UserService userService;
     private final RoleService roleService;
@@ -22,28 +22,31 @@ public class DataInitializer implements CommandLineRunner {
         this.roleService = roleService;
     }
 
-    @Override
-    public void run(String... args) {
-        Role adminRole = roleService.findByName("ROLE_ADMIN");
-        if (adminRole == null) {
-            adminRole = new Role("ROLE_ADMIN");
-            roleService.saveRole(adminRole);
-        }
+    @PostConstruct
+    public void init() {
+        Role adminRole = new Role("ROLE_ADMIN");
+        Role userRole = new Role("ROLE_USER");
 
-        Role userRole = roleService.findByName("ROLE_USER");
-        if (userRole == null) {
-            userRole = new Role("ROLE_USER");
-            roleService.saveRole(userRole);
-        }
+        roleService.saveRole(adminRole);
+        roleService.saveRole(userRole);
 
-        if (userService.findByUsername("admin@mail.com") == null) {
-            User admin = new User("Admin", "Adminov", "admin@mail.com", "admin", Set.of(adminRole, userRole));
-            userService.saveUser(admin);
-        }
+        User admin = new User();
+        admin.setName("Admin");
+        admin.setLastName("Admin");
+        admin.setAge(35);
+        admin.setEmail("admin");
+        admin.setPassword("admin");
+        admin.setRoles(Set.of(adminRole, userRole));
+        userService.saveUser(admin);
 
-        if (userService.findByUsername("user@mail.com") == null) {
-            User user = new User("User", "Userov", "user@mail.com", "user", Set.of(userRole));
-            userService.saveUser(user);
-        }
+        // Пользователь с логином "user" и паролем "user"
+        User user = new User();
+        user.setName("User");
+        user.setLastName("User");
+        user.setAge(25);
+        user.setEmail("user");
+        user.setPassword("user");
+        user.setRoles(Set.of(userRole));
+        userService.saveUser(user);
     }
 }

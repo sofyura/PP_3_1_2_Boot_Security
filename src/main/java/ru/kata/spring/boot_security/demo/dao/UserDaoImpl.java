@@ -14,23 +14,27 @@ public class UserDaoImpl implements UserDao {
     private EntityManager entityManager;
 
     @Override
-    public List<User> getAllUsers() {
-        return entityManager.createQuery("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles", User.class)
-                .getResultList();
-    }
-
-    @Override
     public User getUserById(Long id) {
-        return entityManager.find(User.class, id);
+        return entityManager.createQuery(
+                        "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles WHERE u.id = :id", User.class)
+                .setParameter("id", id)
+                .getSingleResult();
     }
 
     @Override
     public User findByUsername(String username) {
-        return entityManager.createQuery("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.email = :username", User.class)
+        return entityManager.createQuery(
+                        "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles WHERE u.email = :username", User.class)
                 .setParameter("username", username)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
+                .getResultList()
+                .stream().findFirst().orElse(null);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return entityManager.createQuery(
+                        "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles", User.class)
+                .getResultList();
     }
 
     @Override
@@ -45,7 +49,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void deleteUser(Long id) {
-        User user = getUserById(id);
+        User user = entityManager.find(User.class, id);
         if (user != null) {
             entityManager.remove(user);
         }
