@@ -24,7 +24,9 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, RoleDao roleDao, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserDao userDao,
+                           RoleDao roleDao,
+                           PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.passwordEncoder = passwordEncoder;
@@ -58,8 +60,8 @@ public class UserServiceImpl implements UserService {
     public void updateUser(User user) {
         User existingUser = userDao.getUserById(user.getId());
 
-        if (user.getPassword() != null && !user.getPassword().trim().isEmpty()
-                && !user.getPassword().equals(existingUser.getPassword())) {
+        if (user.getPassword() != null
+                && !user.getPassword().trim().isEmpty()) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         } else {
             user.setPassword(existingUser.getPassword());
@@ -76,18 +78,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+
         User user = findByUsername(username);
+
         if (user == null) {
-            throw new UsernameNotFoundException("User not found: " + username);
+            throw new UsernameNotFoundException(
+                    "User not found: " + username
+            );
         }
+
         return user;
     }
 
     private Set<Role> fetchRolesFromDb(Set<Role> roles) {
-        if (roles == null) {
+        if (roles == null || roles.isEmpty()) {
             return Set.of();
         }
+
         return roles.stream()
                 .map(role -> roleDao.getRoleById(role.getId()))
                 .collect(Collectors.toSet());

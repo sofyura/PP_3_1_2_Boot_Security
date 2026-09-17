@@ -39,7 +39,6 @@ public class DataInitializer {
         admin.setRoles(Set.of(adminRole, userRole));
         userService.saveUser(admin);
 
-        // Пользователь с логином "user" и паролем "user"
         User user = new User();
         user.setName("User");
         user.setLastName("User");
