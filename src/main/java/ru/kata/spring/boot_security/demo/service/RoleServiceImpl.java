@@ -25,11 +25,6 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role findByName(String name) {
-        return roleDao.findByName(name);
-    }
-
-    @Override
     @Transactional
     public void saveRole(Role role) {
         roleDao.saveRole(role);
