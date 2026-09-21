@@ -4,9 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -30,20 +35,66 @@ public class AdminController {
     }
 
     @PostMapping("/save")
-    public String saveUser(@ModelAttribute("newUser") User user) {
+    public String saveUser(
+            @RequestParam("name") String name,
+            @RequestParam("lastName") String lastName,
+            @RequestParam("age") Integer age,
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            @RequestParam(value = "roles", required = false) Long[] roleIds) {
+
+        User user = new User();
+
+        user.setName(name);
+        user.setLastName(lastName);
+        user.setAge(age);
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setRoles(getRoles(roleIds));
         userService.saveUser(user);
+
         return "redirect:/admin";
     }
 
     @PostMapping("/update")
-    public String updateUser(@ModelAttribute User user) {
+    public String updateUser(
+            @RequestParam("id") Long id,
+            @RequestParam("name") String name,
+            @RequestParam("lastName") String lastName,
+            @RequestParam("age") Integer age,
+            @RequestParam("email") String email,
+            @RequestParam(value = "password", required = false) String password,
+            @RequestParam(value = "roles", required = false) Long[] roleIds) {
+
+        User user = new User();
+
+        user.setId(id);
+        user.setName(name);
+        user.setLastName(lastName);
+        user.setAge(age);
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setRoles(getRoles(roleIds));
         userService.updateUser(user);
+
         return "redirect:/admin";
     }
 
     @PostMapping("/delete")
     public String deleteUser(@RequestParam("id") Long id) {
         userService.deleteUser(id);
+
         return "redirect:/admin";
+    }
+
+    private Set<Role> getRoles(Long[] roleIds) {
+
+        if (roleIds == null || roleIds.length == 0) {
+            return Set.of();
+        }
+
+        return Arrays.stream(roleIds)
+                .map(roleService::getRoleById)
+                .collect(Collectors.toSet());
     }
 }
