@@ -1,25 +1,218 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-    <meta charset="UTF-8"><title>User information</title><meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style>body{margin:0}.navbar{min-height:56px}.sidebar{min-height:calc(100vh - 56px);background:#f8f9fa;padding:20px 0}.sidebar .nav-link{color:#007bff}.sidebar .nav-link.active{background:#007bff;color:#fff}.content{padding:20px 30px}</style>
+    <meta charset="UTF-8">
+    <title>User information</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 4.3.1 -->
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            min-height: 56px;
+        }
+
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background-color: #f8f9fa;
+            padding: 20px 0;
+        }
+
+        .sidebar .nav-link {
+            color: #007bff;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .content {
+            padding: 20px 30px;
+        }
+
+        .table thead th {
+            vertical-align: middle;
+        }
+    </style>
 </head>
+
 <body>
-<nav class="navbar navbar-dark bg-dark"><span class="navbar-text text-white"><strong id="currentUserEmail">user</strong> with roles: <span id="currentUserRoles"></span></span>
-<form action="/logout" method="post" class="mb-0"><button type="submit" class="btn btn-link text-white">Logout</button></form></nav>
-<div class="container-fluid"><div class="row">
-<div class="col-md-2 sidebar"><nav class="nav flex-column"><a id="adminLink" class="nav-link d-none" href="/admin">Admin</a><a class="nav-link active" href="/user">User</a></nav></div>
-<div class="col-md-10 content"><h1 class="mb-4">User information</h1><div id="userError" class="alert alert-danger d-none"></div><div class="card"><div class="card-header">About user</div><div class="card-body p-0"><table class="table table-striped mb-0"><thead class="thead-light"><tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Age</th><th>Email</th><th>Role</th></tr></thead><tbody id="userTableBody"></tbody></table></div></div></div>
-</div></div>
-<script>
-fetch('/api/user').then(response => { if (!response.ok) throw new Error('Failed to load user'); return response.json(); }).then(user => {
-    document.getElementById('currentUserEmail').textContent = user.email;
-    document.getElementById('currentUserRoles').textContent = user.roles.map(role => role.name).join(', ');
-    if (user.roles.some(role => role.name === 'ADMIN')) document.getElementById('adminLink').classList.remove('d-none');
-    document.getElementById('userTableBody').innerHTML = `<tr><td>${user.id}</td><td>${escapeHtml(user.name)}</td><td>${escapeHtml(user.lastName)}</td><td>${user.age}</td><td>${escapeHtml(user.email)}</td><td>${escapeHtml(user.roles.map(role => role.name).join(', '))}</td></tr>`;
-}).catch(error => { const box=document.getElementById('userError'); box.textContent=error.message; box.classList.remove('d-none'); });
-function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
-</script>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark bg-dark">
+
+    <span class="navbar-text text-white">
+
+        <strong th:text="${user.email}">
+            user
+        </strong>
+
+        with roles:
+
+        <span th:each="role, iterStat : ${user.roles}">
+
+            <span th:text="${role}">
+                USER
+            </span>
+
+            <span th:if="${!iterStat.last}">
+                ,
+            </span>
+
+        </span>
+
+    </span>
+
+
+    <form th:action="@{/logout}"
+          method="post"
+          class="mb-0">
+
+        <button type="submit"
+                class="btn btn-link text-white">
+            Logout
+        </button>
+
+    </form>
+
+</nav>
+
+
+<div class="container-fluid">
+
+    <div class="row">
+
+        <!-- SIDEBAR -->
+        <div class="col-md-2 sidebar">
+
+            <nav class="nav flex-column">
+
+                <!-- ADMIN FIRST -->
+                <a sec:authorize="hasRole('ROLE_ADMIN')"
+                   class="nav-link"
+                   href="/admin">
+                    Admin
+                </a>
+
+                <!-- USER SECOND -->
+                <a class="nav-link active"
+                   href="/user">
+                    User
+                </a>
+
+            </nav>
+
+        </div>
+
+
+        <!-- MAIN CONTENT -->
+        <div class="col-md-10 content">
+
+            <h1 class="mb-4">
+                User information
+            </h1>
+
+
+            <div class="card">
+
+                <div class="card-header">
+                    About user
+                </div>
+
+
+                <div class="card-body p-0">
+
+                    <table class="table table-striped mb-0">
+
+                        <thead class="thead-light">
+
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Age</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        <tr>
+
+                            <td th:text="${user.id}">
+                                1
+                            </td>
+
+                            <td th:text="${user.name}">
+                                User
+                            </td>
+
+                            <td th:text="${user.lastName}">
+                                User
+                            </td>
+
+                            <td th:text="${user.age}">
+                                25
+                            </td>
+
+                            <td th:text="${user.email}">
+                                user
+                            </td>
+
+                            <td>
+
+                                <span th:each="role, iterStat : ${user.roles}">
+
+                                    <span th:text="${role}">
+                                        USER
+                                    </span>
+
+                                    <span th:if="${!iterStat.last}">
+                                        ,
+                                    </span>
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
 </body>
 </html>
