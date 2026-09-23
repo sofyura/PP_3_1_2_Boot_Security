@@ -12,65 +12,37 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig
-        extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
     private final SuccessUserHandler successUserHandler;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public WebSecurityConfig(
-            UserDetailsService userDetailsService,
-            SuccessUserHandler successUserHandler,
-            PasswordEncoder passwordEncoder) {
-
+    public WebSecurityConfig(UserDetailsService userDetailsService,
+                             SuccessUserHandler successUserHandler,
+                             PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
         this.successUserHandler = successUserHandler;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    protected void configure(HttpSecurity http)
-            throws Exception {
-
+    protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-
                 .authorizeRequests()
-
-                .antMatchers(
-                        "/admin/**",
-                        "/api/users/**",
-                        "/api/roles"
-                )
-                .hasRole("ADMIN")
-
-                .antMatchers(
-                        "/user",
-                        "/api/user/**"
-                )
-                .hasAnyRole("USER", "ADMIN")
-
-                .antMatchers(
-                        "/",
-                        "/login"
-                )
-                .permitAll()
-
-                .anyRequest()
-                .authenticated()
-
+                .antMatchers("/admin/**", "/api/users/**").hasRole("ADMIN")
+                .antMatchers("/user", "/api/user/**").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/", "/login").permitAll()
+                .anyRequest().authenticated()
                 .and()
-
                 .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
                 .successHandler(successUserHandler)
                 .permitAll()
-
                 .and()
-
                 .logout()
                 .logoutSuccessUrl("/login")
                 .permitAll();
@@ -78,18 +50,9 @@ public class WebSecurityConfig
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
-
-        DaoAuthenticationProvider provider =
-                new DaoAuthenticationProvider();
-
-        provider.setUserDetailsService(
-                userDetailsService
-        );
-
-        provider.setPasswordEncoder(
-                passwordEncoder
-        );
-
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder); // Явно задаем PasswordEncoder
         return provider;
     }
 }

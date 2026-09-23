@@ -51,6 +51,7 @@ public class UserDaoImpl implements UserDao {
     public void deleteUser(Long id) {
         User user = entityManager.find(User.class, id);
         if (user != null) {
+            user.getRoles().clear();
             entityManager.remove(user);
         }
     }

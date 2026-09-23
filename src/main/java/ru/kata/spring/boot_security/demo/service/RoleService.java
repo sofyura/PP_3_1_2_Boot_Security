@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface RoleService {
     List<Role> getAllRoles();
-    Role findByName(String name);
+    Role getRoleById(Long id);
     void saveRole(Role role);
 }
